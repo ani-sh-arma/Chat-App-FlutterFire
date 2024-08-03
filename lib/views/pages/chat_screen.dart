@@ -1,21 +1,42 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../models/user.dart';
+import 'package:get/get.dart';
+import '../../controllers/chat_controller.dart';
+import '../../models/local_user.dart';
+import '../../models/message.dart';
+import '../widgets/message_widget.dart';
 
 class ChatScreen extends StatelessWidget {
+  final LocalUser localUser;
   final User user;
-  ChatScreen({super.key, required this.user});
-
+  final String chatId; // Pass the chat ID to identify the chat
+  final ChatController chatController = Get.put(ChatController());
   final TextEditingController messageController = TextEditingController();
+
+  ChatScreen({
+    super.key,
+    required this.user,
+    required this.chatId,
+    required this.localUser,
+  });
+
+  void _sendMessage() {
+    final text = messageController.text;
+    if (text.isNotEmpty) {
+      chatController.sendMessage(chatId, text, user.uid);
+      messageController.clear();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // automaticallyImplyLeading: false,
         title: Row(
           children: [
             Text(
-              user.fullName,
+              localUser.fullName,
               style: const TextStyle(fontSize: 18),
             ),
           ],
@@ -24,39 +45,70 @@ class ChatScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Expanded widget to hold the chat messages
           Expanded(
-            child: Center(
-              child: Text('Chat screen for ${user.fullName}'),
+            child: StreamBuilder<List<Message>>(
+              stream: chatController.getMessagesStream(chatId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                final messages = snapshot.data ?? [];
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final message = messages[index];
+                    return FutureBuilder<LocalUser?>(
+                      future: getUserById(message.senderId),
+                      builder: (context, userSnapshot) {
+                        if (userSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return MessageWidget(
+                            message: message,
+                            senderName: "Loading...",
+                          );
+                        }
+                        if (userSnapshot.hasError) {
+                          return MessageWidget(
+                              message: message, senderName: "Unknown");
+                        }
+                        final sender = userSnapshot.data;
+                        return MessageWidget(
+                            message: message,
+                            senderName: sender?.fullName ?? 'Unknown');
+                      },
+                    );
+                  },
+                );
+              },
             ),
           ),
-          // Input field with send button
-          Container(
-            // padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            color: Colors.white,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
                 Expanded(
                   child: Container(
-                    color: Colors.blue[100],
-                    child: const TextField(
-                      maxLines: 1,
-                      decoration: InputDecoration(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: TextField(
+                      controller: messageController,
+                      decoration: const InputDecoration(
                         hintText: 'Type your message...',
                         border: InputBorder.none,
                       ),
                     ),
                   ),
                 ),
-                Container(
-                  color: Colors.blue[100],
-                  child: IconButton(
-                    color: Colors.black,
-                    icon: const Icon(Icons.send),
-                    onPressed: () {
-                      // Handle send button press
-                    },
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: _sendMessage,
                 ),
               ],
             ),
@@ -64,5 +116,22 @@ class ChatScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<LocalUser?> getUserById(String userId) async {
+    try {
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (doc.exists) {
+        return LocalUser.fromDocument(doc);
+      } else {
+        return null; // User not found
+      }
+    } catch (e) {
+      return null; // Handle errors appropriately
+    }
   }
 }
