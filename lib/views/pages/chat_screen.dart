@@ -73,13 +73,42 @@ class ChatScreen extends StatelessWidget {
                         }
                         if (userSnapshot.hasError) {
                           return MessageWidget(
-                              message: message, senderName: "Unknown",);
+                            message: message,
+                            senderName: "Unknown",
+                          );
                         }
                         final sender = userSnapshot.data;
-                        return MessageWidget(
-                          message: message,
-                          senderName: sender?.fullName ?? 'Unknown',
-                        );
+                        return message.text.startsWith('https://')
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 15.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      user.uid == message.senderId
+                                          ? MainAxisAlignment.end
+                                          : MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: Get.width * 0.8,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      clipBehavior: Clip.hardEdge,
+                                      child: Image.network(
+                                        message.text,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) =>
+                                                child,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : MessageWidget(
+                                message: message,
+                                senderName: sender?.fullName ?? 'Unknown',
+                              );
                       },
                     );
                   },
@@ -94,8 +123,7 @@ class ChatScreen extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.perm_media_outlined),
                   onPressed: () {
-                    // Send Image. Use Firebase storage for image upload.
-                    
+                    chatController.sendImage(chatId, user.uid);
                   },
                 ),
                 Expanded(
