@@ -15,8 +15,9 @@ class LoginScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       // User is already logged in, navigate to the home page or another appropriate page
-      Get.offAll(() =>
-          HomeScreen()); // Use Get.offAll to replace the entire navigation stack
+      Get.offAll(
+        () => HomeScreen(),
+      ); // Use Get.offAll to replace the entire navigation stack
     }
   }
 

@@ -73,12 +73,13 @@ class ChatScreen extends StatelessWidget {
                         }
                         if (userSnapshot.hasError) {
                           return MessageWidget(
-                              message: message, senderName: "Unknown");
+                              message: message, senderName: "Unknown",);
                         }
                         final sender = userSnapshot.data;
                         return MessageWidget(
-                            message: message,
-                            senderName: sender?.fullName ?? 'Unknown');
+                          message: message,
+                          senderName: sender?.fullName ?? 'Unknown',
+                        );
                       },
                     );
                   },
@@ -90,6 +91,13 @@ class ChatScreen extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
+                IconButton(
+                  icon: const Icon(Icons.perm_media_outlined),
+                  onPressed: () {
+                    // Send Image. Use Firebase storage for image upload.
+                    
+                  },
+                ),
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10.0),

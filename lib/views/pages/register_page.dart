@@ -22,8 +22,9 @@ class RegisterScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       // User is already logged in, navigate to the home page or another appropriate page
-      Get.offAll(() =>
-          HomeScreen()); // Use Get.offAll to replace the entire navigation stack
+      Get.offAll(
+        () => HomeScreen(),
+      ); // Use Get.offAll to replace the entire navigation stack
     }
   }
 
@@ -99,7 +100,6 @@ class RegisterScreen extends StatelessWidget {
                           );
 
                           User? user = userCredential.user;
-
                           if (user != null) {
                             // Save additional user data in Firestore
                             await FirebaseFirestore.instance
@@ -138,7 +138,6 @@ class RegisterScreen extends StatelessWidget {
                 const SizedBox(height: 20.0),
                 GestureDetector(
                   onTap: () {
-                    // Navigate to the login screen
                     Get.to(LoginScreen());
                   },
                   child: const Text(
