@@ -6,9 +6,9 @@ import 'chat_screen.dart';
 import 'login_page.dart';
 
 class HomeScreen extends StatelessWidget {
-  final homeController = Get.put(HomeController());
-
   HomeScreen({super.key});
+
+  final homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +17,14 @@ class HomeScreen extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Users'),
+            const Text("Welcome"),
             IconButton(
               onPressed: () async {
                 try {
                   await FirebaseAuth.instance.signOut();
                   Get.to(LoginScreen());
                 } catch (e) {
-                  Get.snackbar("Erro", "Failed to Sign Out");
+                  Get.snackbar("Error", "Failed to Sign Out");
                 }
               },
               icon: const Icon(
@@ -47,17 +47,19 @@ class HomeScreen extends StatelessWidget {
                 leading: const CircleAvatar(
                   backgroundImage: AssetImage('assets/user-icon.png'),
                 ),
-                title: Text(user.fullName),
+                title: Text(
+                  FirebaseAuth.instance.currentUser!.email == user.email
+                      ? '${user.fullName} (You)'
+                      : user.fullName,
+                ),
                 onTap: () {
-                  // Navigate to chat screen or user details
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        user: FirebaseAuth.instance.currentUser!,
-                        localUser: user,
-                        chatId: generateChatId(
-                            FirebaseAuth.instance.currentUser!.uid, user.uid),
+                  Get.to(
+                    () => ChatScreen(
+                      user: FirebaseAuth.instance.currentUser!,
+                      localUser: user,
+                      chatId: generateChatId(
+                        FirebaseAuth.instance.currentUser!.uid,
+                        user.uid,
                       ),
                     ),
                   );

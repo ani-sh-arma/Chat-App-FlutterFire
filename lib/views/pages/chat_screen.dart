@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +35,7 @@ class ChatScreen extends StatelessWidget {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context); // Close the dialog
-                // await _downloadImage(imageUrl);
+                // await downloadImage(imageUrl);
               },
               child: const Text('Download'),
             ),
@@ -120,10 +119,10 @@ class ChatScreen extends StatelessWidget {
                                     );
                                   },
                                   onLongPress: () {
-                                    _showDownloadButton(
-                                      context,
-                                      message.text,
-                                    );
+                                    // _showDownloadButton(
+                                    //   context,
+                                    //   message.text,
+                                    // );
                                   },
                                   child: Container(
                                     width: Get.width * 0.8,

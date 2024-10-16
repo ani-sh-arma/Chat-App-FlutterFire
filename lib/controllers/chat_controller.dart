@@ -45,7 +45,7 @@ class ChatController extends GetxController {
         // Send the image URL as a message
         sendMessage(chatId, downloadUrl, senderId);
       } catch (e) {
-        print('Error occurred during image upload: $e');
+        Get.snackbar("Error", 'Error occurred during image upload: $e');
       }
     }
   }
