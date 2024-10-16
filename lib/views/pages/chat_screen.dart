@@ -1,4 +1,4 @@
-import 'package:image_downloader/image_downloader.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +36,7 @@ class ChatScreen extends StatelessWidget {
             TextButton(
               onPressed: () async {
                 Navigator.pop(context); // Close the dialog
-                await _downloadImage(imageUrl); // Download the image
+                // await _downloadImage(imageUrl);
               },
               child: const Text('Download'),
             ),
@@ -44,29 +44,6 @@ class ChatScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> _downloadImage(String imageUrl) async {
-    try {
-      var imageId = await ImageDownloader.downloadImage(imageUrl);
-      if (imageId == null) {
-        return;
-      }
-
-      // Optionally, get the file path:
-      var filePath = await ImageDownloader.findPath(imageId);
-      Get.snackbar(
-        'Download complete',
-        'Image saved to $filePath',
-        snackPosition: SnackPosition.TOP,
-      );
-    } catch (error) {
-      Get.snackbar(
-        'Download failed',
-        'Failed to download the image.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
   }
 
   void _sendMessage() {
